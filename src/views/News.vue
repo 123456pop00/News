@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-form ref="form">
       <v-col>
         <v-row>
           <v-col cols="2"> </v-col>
@@ -11,7 +10,7 @@
             <v-row>
               <v-col cols="2" style="display: flex"
                 ><label style="align-self: center" for="titlevideo"
-                  >Tiêu đề video</label
+                  >Tiêu đề bài viết</label
                 ></v-col
               >
               <v-col cols="10"
@@ -39,7 +38,7 @@
                     :autoRotate="true"
                     :quality="0.9"
                     outputFormat="file"
-                    @input="setImage2"
+                    v-model="ThumbnailNews"
                     class="ImageUpload"
                   >
                     <label
@@ -52,7 +51,7 @@
                     </label>
                   </image-uploader>
                   <!-- <label
-                  v-if="newsModel.Thumbnail != null"
+                  v-if="ThumbnailNews != null"
                   @click="deleteImage2"
                   style="color: #9e0c10; margin-left: 20px"
                   class="font-weight cursor-pointer font-14"
@@ -60,14 +59,6 @@
                   Xóa ảnh
                 </label> -->
                 </div>
-                <!-- <img
-                v-if="newsModel.Thumbnail != null"
-                id="img-detail-event"
-                class="flex-1-1-auto"
-                v-bind:src="newsModel.Thumbnail"
-                style="width: 100%; border-radius: 10px; height: 375px"
-                alt=""
-            /> -->
               </v-col>
             </v-row>
 
@@ -108,7 +99,7 @@
                     :autoRotate="true"
                     :quality="0.9"
                     outputFormat="file"
-                    @input="setImage1"
+                    v-model="ThumbnailVideo"
                     class="ImageUpload"
                   >
                     <label
@@ -121,7 +112,7 @@
                     </label>
                   </image-uploader>
                   <!-- <label
-                  v-if="videoModel.Thumbnail != null"
+                  v-if="ThumbnailVideo != null"
                   @click="deleteImage"
                   style="color: #9e0c10; margin-left: 20px"
                   class="font-weight cursor-pointer font-14"
@@ -129,14 +120,6 @@
                   Xóa ảnh
                 </label> -->
                 </div>
-                <!-- <img
-                v-if="videoModel.Thumbnail != null"
-                id="img-detail-event2"
-                class="flex-1-1-auto"
-                v-bind:src="videoModel.Thumbnail"
-                style="width: 100%; border-radius: 10px; height: 375px"
-                alt=""
-            /> -->
               </v-col>
             </v-row>
             <v-row>
@@ -191,11 +174,9 @@
           <v-col cols="2"> </v-col>
         </v-row>
       </v-col>
-    </v-form>
     <!-- <div v-html="videoframe"></div> -->
   </div>
 </template>
-
 <script>
 import {
   TiptapVuetify,
@@ -287,11 +268,11 @@ export default {
       );
     },
     finalUploading() {
-      // if (this.creatingVideo + this.uploadingNews > 0) {
-      //   return Math.ceil(
-      //     (this.creatingVideo + this.uploadingNews + this.uploadingProcess) / 3
-      //   );
-      // }
+      if (this.creatingVideo + this.uploadingNews > 0) {
+        return Math.ceil(
+          (this.creatingVideo + this.uploadingNews + this.uploadingProcess) / 3
+        );
+      }
 
       return 0;
     },
@@ -570,17 +551,13 @@ export default {
       alert("Cập nhật dữ liệu thất bại!!");
       eventBus.HidenLoading();
     },
-    setImage1: function (file) {
-      this.ThumbnailVideo = file;
-    },
-    setImage2: function (file) {
-      this.ThumbnailNews = file;
-    },
     deleteImage() {
       this.videoModel.Thumbnail = null;
+      this.ThumbnailVideo = null;
     },
     deleteImage2() {
       this.newsModel.Thumbnail = null;
+      this.ThumbnailNews = null;
     },
   },
   created: function () {

@@ -19,7 +19,7 @@ if(!token){
     // 'Authorization' : token
   }
 }
-console.log(headers);
+// console.log(headers);
 const apiClient = axios.create({
   baseURL: process.env.VUE_APP_BACKEND_API,
   timeout: process.env.VUE_APP_TIME_OUT,
