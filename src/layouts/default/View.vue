@@ -5,9 +5,9 @@
       <!-- <div>Ứng dụng lịch</div> -->
       <div></div>
       <div class="font-14 font-weight-medium d-flex" style="color: black">
-        <!-- <div class="mr-3">Chào mừng {{ user }}</div> -->
-        <div class="mr-3">Chào mừng Admin</div>
-        <!-- <div class="cursor-pointer" @click="logout()">Đăng xuất</div> -->
+        <div class="mr-3">Chào mừng {{ user }}</div>
+        <!-- <div class="mr-3">Chào mừng Admin</div> -->
+        <div class="cursor-pointer" @click="logout()">Đăng xuất</div>
       </div>
     </div>
     <router-view :key="$route.path" />

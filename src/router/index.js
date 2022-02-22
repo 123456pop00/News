@@ -32,13 +32,14 @@ const router = new Router({
   // },
   routes: [
     layout('Default', [
-
+      route('News', 'news'),
 
       // Components
       route('News', null, 'news'),
       route('Video', null, 'video'),
       route('ListVideo', null, 'ListVideo'),
       route('ListNews', null, 'ListNews'),
+      route('Users', null, 'Users'),
       // route('Login1', null, 'component/Login'),
     ]),
 
@@ -47,24 +48,27 @@ const router = new Router({
     //   name: 'login',
     //   component: () => import( '../views/Login.vue')
     // },
-    { path: '/news/', name: 'news', component: () => import('../views/News.vue') }
-    // { path: '/login', name: 'login', component: () => import('../views/login.vue') }
+    // { path: '/news/', name: 'news', component: () => import('../views/News.vue') }
+    { path: '/login', name: 'login', component: () => import('../views/login.vue') }
   ],
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.path == "/") {
-    return next({ path: '/news' });
-  }
-  return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
-})
-
 // router.beforeEach((to, from, next) => {
-//   var tokenWorkLocal = workLocalStorage("DataUser");
-//   if (!tokenWorkLocal.data()  && to.path != "/login/") {
-//     return next({ path: '/login/' });
+//   if (to.path == "/") {
+//     return next({ path: '/news' });
 //   }
 //   return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
 // })
+
+router.beforeEach((to, from, next) => {
+  var tokenWorkLocal = workLocalStorage("DataUser");
+  if (!tokenWorkLocal.data()  && to.path != "/login/") {
+    return next({ path: '/login/' });
+  }
+  // if (to.path == "/") {
+  //   return next({ path: '/news' });
+  // }
+  return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
+})
 
 export default router

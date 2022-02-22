@@ -1,13 +1,7 @@
 <template>
   <div style="padding: 24px 18px; height: calc(100vh - 62px)">
-    <div v-show="showDetailNews" v-if="showDetailNews">
-      <News
-        :edittingModel="editedItem"
-        :IsEdit="true"
-        @back-event="initialize"        
-      ></News>
-    </div>
-    <div v-show="!showDetailNews" v-if="!showDetailNews">
+    <div class="font-20 font-weight-black table-noti2">Quản lý user</div>
+    <div>
       <div></div>
       <div class="custom-1 flex-1-1-auto mt-4 table-noti">
         <v-data-table
@@ -15,31 +9,24 @@
           :items="desserts"
           sort-by="calories"
           class="elevation-1"
+          hide-default-footer
         >
           <template v-slot:top>
             <v-toolbar flat>
               <!-- <v-toolbar-title><input type="text" placeholder="Tìm kiếm"></v-toolbar-title> -->
-              <div>
-                <input
-                  style="
-                    border: thin solid #ced3d8;
-                    border-radius: 5px;
-                    padding: 7px 10px;
-                    font-size: 14px;
-                  "
-                  type="text"
-                  v-model="SearchTitle"
-                  placeholder="Tìm kiếm"
-                />
-
-                <button class="button-noti ml-3" @click="initialize">
-                  Tìm kiếm
-                </button>
-              </div>
-
+              <input
+                style="
+                  border: thin solid #ced3d8;
+                  border-radius: 5px;
+                  padding: 7px 10px;
+                  font-size: 14px;
+                "
+                type="text"
+                placeholder="Tìm kiếm"
+              />
               <!-- <v-divider class="mx-4" inset vertical></v-divider> -->
               <v-spacer></v-spacer>
-              <!-- <v-dialog v-model="dialog" max-width="400px" persistent>
+              <v-dialog v-model="dialog" max-width="400px" persistent>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     class="mb-2 oke-2"
@@ -73,24 +60,31 @@
                       <div
                         class="font-14 mt-4 font-size: font-weight-black mb-2"
                       >
-                        <label for="Email">Email <span>*</span></label>
+                        <label for="UserName">UserName <span>*</span></label>
                       </div>
+                      <!-- <input
+                        class="text-insert text-input"
+                        type="text"
+                        id="UserName"
+                        placeholder="Nhập UserName"
+                        v-model="user.UserName"
+                      /> -->
                       <input
                         class="text-insert text-input"
                         for="text-insert text-input"
-                        type="email"
-                        id="Email"
-                        placeholder="Nhập email"
-                        v-model="user.Email"
+                        type="UserName"
+                        id="UserName"
+                        placeholder="Nhập UserName"
+                        v-model="user.UserName"
                         required
-                        v-on:blur="validateEmail"
+                        v-on:blur="validateUserName"
                       />
                     </div>
                     <div
                       class="color-text font-italic mt-1"
-                      v-if="!checkValidateEmail"
+                      v-if="!checkValidateUserName"
                     >
-                      Email sai định dạng
+                      UserName sai định dạng
                     </div>
                     <div>
                       <div class="font-14 mt-4 font-weight-black mb-2">
@@ -115,6 +109,12 @@
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
+                    <!-- <v-btn color="blue darken-1" text @click="close">
+                      Hủy
+                    </v-btn>
+                    <v-btn color="blue darken-1" text @click="save">
+                      lưu
+                    </v-btn> -->
                     <button
                       class="button-noti mr-3"
                       style="color: #9e0c10; border: 1px solid #d9d9d9"
@@ -127,11 +127,11 @@
                     </button>
                   </v-card-actions>
                 </v-card>
-              </v-dialog> -->
+              </v-dialog>
               <v-dialog v-model="dialogDelete" max-width="530px">
                 <v-card>
                   <v-card-title class="text-h5"
-                    >Bạn có chắc chắn muốn xóa bài viết này ?</v-card-title
+                    >Bạn có chắc chắn muốn xóa tài khoản này ?</v-card-title
                   >
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -141,7 +141,11 @@
                     <v-btn color="blue darken-1" text @click="deleteItemConfirm"
                       >Đồng ý </v-btn
                     > -->
-                    <button class="button-noti mr-3" @click="closeDelete">
+                    <button
+                      class="button-noti mr-3"
+                      style="color: #9e0c10; border: 1px solid #d9d9d9"
+                      @click="closeDelete"
+                    >
                       Hủy
                     </button>
                     <button
@@ -172,13 +176,10 @@
 </template>
 
 <script>
-import apiClient from "../services/APIClient";
-import News from "./News.vue";
+import apiClient from '../services/APIClient';
 export default {
-  name: "ListNewsView",
-  components: {
-    News,
-  },
+  name: "UsersView",
+
   data: () => ({
     headers: [
       {
@@ -188,23 +189,23 @@ export default {
         value: "STT",
       },
       {
-        text: "Tiêu đề",
+        text: "Tên",
         align: "center",
-        sortable: true,
-        value: "Title",
+        sortable: false,
+        value: "FullName",
       },
       {
-        text: "Ngày đăng",
+        text: "UserName",
         align: "center",
-        sortable: true,
-        value: "ConvertedDate",
+        sortable: false,
+        value: "UserName",
       },
-      // {
-      //   text: "Phân quyền",
-      //   align: "center",
-      //   sortable: false,
-      //   value: "Permission",
-      // },
+      {
+        text: "Phân quyền",
+        align: "center",
+        sortable: false,
+        value: "Permission",
+      },
 
       {
         text: "",
@@ -213,11 +214,9 @@ export default {
         value: "actions",
       },
     ],
-    showDetailNews: false,
     desserts: [],
     dialog: false,
     dialogDelete: false,
-    SearchTitle: "",
     // headers: [
     //   {
     //     text: "Dessert (100g serving)",
@@ -236,20 +235,20 @@ export default {
     editedItem: {
       STT: "",
       Name: 0,
-      Email: 0,
+      UserName: 0,
       permission: 0,
     },
     defaultItem: {
       Name: "",
-      Email: "",
+      UserName: "",
       Password: "",
     },
     user: {
       Name: "",
-      Email: "",
+      UserName: "",
       Password: "",
     },
-    checkValidateEmail: false,
+    checkValidateUserName: false,
     checkValidatePassword: false,
   }),
   methods: {
@@ -262,40 +261,25 @@ export default {
     initialize() {
       // call serive
       const me = this;
-      me.showDetailNews = false;
-      let paging = {
-        PageSize: 200,
-        PageIndex: 0,
-        SearchValue: me.SearchTitle,
-        CustomParam: null,
-      };
-      apiClient.post("news/GetNews", paging).then((res) => {
-        if (res.Data && res.Success) {
+      apiClient.get("user").then(res => {
+        if (res.Data && res.Success){
           me.desserts = res.Data;
           me.desserts.forEach((x, index) => {
             x.STT = index + 1;
-            x.ConvertedDate = new Date(x.CreatedDate).toLocaleString();
             return x;
-          });
+          })
         }
-      });
+      })
+
     },
 
     editItem(item) {
-      // this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
-
-      if (this.editItem && !this.editItem?.VideoInfo) {
-        alert("Bài viết này không thể chỉnh sửa")
-      }
-      else {
-        this.showDetailNews = true;
-      }
-
-      // this.user = this.editedItem;
-      // this.checkValidateEmail = true;
-      // this.checkValidatePassword = true;
-      // this.dialog = true;
+      this.user = this.editedItem;
+      this.checkValidateUserName = true;
+      this.checkValidatePassword = true;
+      this.dialog = true;
     },
 
     deleteItem(item) {
@@ -307,12 +291,13 @@ export default {
     deleteItemConfirm() {
       const me = this;
       // call service
-      apiClient.post("news/Delete", me.editedItem).then((res) => {
-        if (res.Success) {
+      apiClient.post("user/Delete", me.editedItem).then(res => {
+        if (res.Success){
           me.initialize();
+          me.closeDelete();
         }
-        me.closeDelete();
-      });
+      })
+      
     },
 
     close() {
@@ -330,9 +315,9 @@ export default {
         this.editedIndex = -1;
       });
     },
-    validateEmail() {
-      this.checkValidateEmail =
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.user?.Email);
+    validateUserName() {
+      // this.checkValidateUserName = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.user?.UserName);
+      this.checkValidateUserName = true;
     },
     validatePassword() {
       if (this.user?.Password != "") {
@@ -342,29 +327,32 @@ export default {
       }
     },
     save() {
+      
       if (
-        !this.checkValidateEmail ||
+        !this.checkValidateUserName ||
         !this.checkValidatePassword ||
         !this.user.Password ||
-        !this.user.Email
+        !this.user.UserName
       )
         return;
 
       const me = this;
       // call service
       if (this.editedIndex > -1) {
-        apiClient.post("user/UpdateUser", this.user).then((res) => {
-          if (res.Data && res.Success) {
+         apiClient.post("user/UpdateUser", this.user).then(res => {
+          if (res.Data && res.Success){
             me.initialize();
-          } else {
+          }
+          else {
             alert(res.Message);
           }
         });
       } else {
-        apiClient.post("user/CreateUser", this.user).then((res) => {
-          if (res.Data && res.Success) {
+        apiClient.post("user/CreateUser", this.user).then(res => {
+          if (res.Data && res.Success){
             me.initialize();
-          } else {
+          }
+          else {
             alert(res.Message);
           }
         });

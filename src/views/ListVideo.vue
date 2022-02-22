@@ -1,7 +1,13 @@
 <template>
   <div style="padding: 24px 18px; height: calc(100vh - 62px)">
-    <!-- <div class="font-20 font-weight-black table-noti2">Quản lý user</div> -->
-    <div>
+    <div v-show="showDetailVideo" v-if="showDetailVideo">
+      <Video
+        :edittingModel="editedItem"
+        :IsEdit="true"
+        @back-event="initialize"        
+      ></Video>
+    </div>
+    <div v-show="!showDetailVideo" v-if="!showDetailVideo">
       <div></div>
       <div class="custom-1 flex-1-1-auto mt-4 table-noti">
         <v-data-table
@@ -151,9 +157,9 @@
             </v-toolbar>
           </template>
           <template v-slot:item.actions="{ item }">
-            <!-- <v-icon small class="mr-2" @click="editItem(item)">
+            <v-icon small class="mr-2" @click="editItem(item)">
               mdi-pencil
-            </v-icon> -->
+            </v-icon>
             <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
           </template>
           <template v-slot:no-data>
@@ -167,10 +173,14 @@
 
 <script>
 import apiClient from "../services/APIClient";
+import Video from "./Video.vue";
 export default {
   name: "ListNewsView",
-
+  components: {
+    Video,
+  },
   data: () => ({
+    showDetailVideo: false,
     headers: [
       {
         text: "STT",
@@ -252,6 +262,7 @@ export default {
     initialize() {
       // call serive
       const me = this;
+      me.showDetailVideo = false;
       let paging = {
         PageSize: 200,
         PageIndex: 0,
@@ -271,12 +282,13 @@ export default {
     },
 
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      // this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
-      this.user = this.editedItem;
-      this.checkValidateEmail = true;
-      this.checkValidatePassword = true;
-      this.dialog = true;
+      this.showDetailVideo = true
+      // this.user = this.editedItem;
+      // this.checkValidateEmail = true;
+      // this.checkValidatePassword = true;
+      // this.dialog = true;
     },
 
     deleteItem(item) {

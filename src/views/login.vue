@@ -90,7 +90,7 @@ export default {
         if (response.Data && response.Success) {
           var tokenWorkLocal = workLocalStorage("DataUser");
           tokenWorkLocal.setData(response.Data);
-          this.$router.push("/");
+          this.$router.push("/");  
 
           // tokenWorkLocal.setData()
           this.showErr = false;
@@ -98,7 +98,9 @@ export default {
           this.active = true;
           setTimeout(() => {
             window.location.reload(true);
-          }, 200);
+          }, 500);
+
+          
           // alert("Cập nhật dữ liệu thành công ");
         } else {
           this.showErr = true;

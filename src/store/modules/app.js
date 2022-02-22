@@ -54,6 +54,11 @@ const state = {
       icon: '4',
       to: '/listnews/',
     },
+    {
+      title: 'Quản lý User',
+      icon: '4',
+      to: '/users/',
+    },
     // {
     //   title: 'Quản lý user',
     //   icon: '3',

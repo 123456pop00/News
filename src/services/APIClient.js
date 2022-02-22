@@ -14,9 +14,8 @@ if(!token){
   headers = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
-
-    // 'Authorization' : token
+    'Access-Control-Allow-Origin': '*',
+    'Authorization' : token
   }
 }
 // console.log(headers);
@@ -29,20 +28,12 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(function(response) {
   const data = response.data
   if (data.ResultCode && data.ResultCode == 401 ) {
-    // dataUser.removeKey("DataUser");
-    // window.location.href = "/login/";
-    // setTimeout(() => {
-    //   window.location.reload(true);
-    // }, 200);
-    // window.location.reload(true);
-    // const error = new Error(data.message || data.data)
-    // error.status = data.status
-    // error.data = data.data
-    // throw error
+    dataUser.removeKey("DataUser");
+    window.location.href = "/login/";
+    setTimeout(() => {
+      window.location.reload(true);
+    }, 200);
   }
-  // else {
-  //   window.location.href = "/components/texteditor/";
-  // }
   return data
 }, function(error) {
   return Promise.reject(error)

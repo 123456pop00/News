@@ -1,9 +1,27 @@
 <template>
   <div>
+    <div
+      v-if="IsEdit"
+      class="
+        align-center
+        cursor-pointer
+        d-flex
+        justify-space-between
+        ml-4
+        mr-4
+        position-relative
+      "
+      style="width: 100%; padding: 6px 0px"
+    >
+      <div @click="emitBack()">
+        <i class="fas fa-arrow-left mr-3"></i>
+        Trở lại danh sách
+      </div>
+    </div>
     <v-col>
       <v-row>
         <v-col cols="2"> </v-col>
-        <v-col cols="8" style="padding-top: 40px">
+        <v-col cols="9" style="padding-top: 40px">
           <!-- <h1 style="margin-bottom: 20px">Đăng Video</h1> -->
           <v-row>
             <v-col cols="2" style="display: flex"
@@ -20,6 +38,32 @@
                 v-model="videoModel.Title"
             /></v-col>
           </v-row>
+          <v-row style="margin-top: 24px">
+            <v-col cols="2" style="display: flex"
+              ><label style="align-self: center" for="titlevideo"
+                >Link Youtube</label
+              ></v-col
+            >
+            <v-col cols="10">
+              <input
+                class="text-insert text-input"
+                type="text"
+                placeholder="Link Youtube"
+                id="nameEvent"
+                v-model="videoModel.YoutubeLink"
+              />
+            </v-col>
+          </v-row>
+          <v-row v-if="showWarning">
+            <v-col cols="2"></v-col
+            ><label
+              style="align-self: center; color: #9e0c10; padding-left: 12px"
+              for="titlevideo"
+            >
+              *Note: ưu tiên link video từ Youtube nếu có cả LinkYoutube và
+              Upload video từ máy</label
+            ></v-row
+          >
 
           <!-- <div class="flex w-full h-screen items-center justify-center text-center" id="app">
             <div class="p-12 bg-gray-100 border border-gray-300" @dragover="dragover" @dragleave="dragleave" @drop="drop">
@@ -48,6 +92,7 @@
             <v-col cols="10">
               <v-file-input
                 v-model="fileUpload"
+                @change="changeVideo"
                 counter
                 show-size
                 truncate-length="28"
@@ -62,14 +107,19 @@
               ></v-col
             >
             <v-col cols="10">
+              <div
+                v-if="IsEdit && edittingModel && !ThumbnailVideo && !fileUpload"
+              >
+                <img :src="edittingModel.Thumbnail" style="max-width: 700px" />
+              </div>
               <div class="d-flex font-13 mb-3 mt-5" style="">
                 <image-uploader
                   :preview="true"
-                  :debug="1"
                   :autoRotate="true"
-                  :maxWidth="750"
-                  :maxHeight="600"
+                  :maxSize="2"
+                  :quality="0.9"
                   outputFormat="file"
+                  v-model="ThumbnailVideo"
                   @input="setImage1"
                   class="ImageUpload"
                 >
@@ -82,14 +132,14 @@
                     Thay ảnh Thumnail
                   </label>
                 </image-uploader>
-                <label
+                <!-- <label
                   v-if="ThumbnailVideo"
                   @click="deleteImage"
                   style="color: #9e0c10; margin-left: 20px"
                   class="font-weight cursor-pointer font-14"
                 >
                   Xóa ảnh
-                </label>
+                </label> -->
               </div>
               <!-- <img
                 v-if="ThumbnailVideo"
@@ -132,12 +182,28 @@
               </div></v-col
             >
           </v-row>
+          <v-row>
+            <v-col cols="2"></v-col>
+            <v-col>
+              <div v-if="IsEdit && fileUpload == null">
+                <iframe
+                  width="500"
+                  height="315"
+                  style="border: none"
+                  :src="
+                    edittingModel.YoutubeLink != null
+                      ? edittingModel.YoutubeLink
+                      : edittingModel.VideoLink
+                  "
+                >
+                </iframe>
+              </div>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col cols="2"> </v-col>
+        <v-col cols="1"> </v-col>
       </v-row>
     </v-col>
-
-    <div v-html="videoframe"></div>
   </div>
 </template>
 
@@ -172,8 +238,13 @@ export default {
     TiptapVuetify,
     ImageUploader,
   },
+  props: {
+    IsEdit: false,
+    edittingModel: null,
+  },
   data() {
     return {
+      VideoInfo: null,
       headersPost: {
         Authorization: `Bearer a6847fdbcfa64e0fd2fff66da4d76465`,
         Accept: "application/vnd.vimeo.*+json;version=3.4",
@@ -188,11 +259,13 @@ export default {
         Thumbnail: null,
       },
       videoModel: {
+        ID: 0,
         Title: "Title video là đây",
         VideoInfo: null,
         VideoLink: null,
         Thumbnail: null,
         Tags: null,
+        YoutubeLink: null,
       },
       uploadingSize: "0",
       uploadingProcess: 0,
@@ -217,16 +290,34 @@ export default {
         Paragraph,
         HardBreak,
       ],
+      checkTitle:
+        "aàảãáạăằẳẵắặâầẩẫấậ,AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬ,dđ,DĐ,eèẻẽéẹêềểễếệ,EÈẺẼÉẸÊỀỂỄẾỆ,iìỉĩíị,IÌỈĨÍỊ,oòỏõóọôồổỗốộơờởỡớợ,OÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢ,uùủũúụưừửữứự,UÙỦŨÚỤƯỪỬỮỨỰ,yỳỷỹýỵ,YỲỶỸÝỴ",
       client: null,
     };
   },
   computed: {
     isDisableSave() {
+      if (
+        this.videoModel.YoutubeLink != null &&
+        this.videoModel.YoutubeLink?.length > 0
+      )
+        return false;
+
+      // nếu có đính kèm file thì sẽ xóa các trường này đi
+      if (this.IsEdit && this.videoModel.Thumbnail && this.videoModel.VideoLink) return false;
+      if (this.IsEdit && this.ThumbnailVideo && this.videoModel.VideoLink) return false;
+
       return (
         this.ThumbnailVideo == null ||
         this.ThumbnailVideo.length == 0 ||
         this.fileUpload == null ||
         this.fileUpload.size < 0
+      );
+    },
+    showWarning() {
+      return (
+        this.videoModel.YoutubeLink != null &&
+        this.videoModel.YoutubeLink?.length > 0
       );
     },
     finalUploading() {
@@ -239,10 +330,27 @@ export default {
     },
   },
   methods: {
+    emitBack() {
+      this.$emit("back-event", true);
+    },
+    cleanString(input) {
+      var output = "";
+      for (var i = 0; i < input.length; i++) {
+        if (
+          input.charCodeAt(i) <= 127 ||
+          this.checkTitle.includes(input.charAt(i))
+        ) {
+          output += input.charAt(i);
+        }
+      }
+      return output;
+    },
     saveVideo(link) {
       const me = this;
+      let uri = me.IsEdit ? "/video/UpdateVideo" : "/video/UploadVideo";
+
       apiClient
-        .post("/video/UploadVideo", me.videoModel, {
+        .post(uri, me.videoModel, {
           onUploadProgress: (progressEvent) => {
             me.uploadingNews =
               Math.ceil(progressEvent.loaded / progressEvent.total) * 100;
@@ -253,15 +361,20 @@ export default {
         })
         .then((res) => {
           if (res && res.Success) {
-            me.uploadVideo(link);
+            if (link != null && me.fileUpload != null) {
+              me.uploadVideo(link);
+            } else {
+              me.resetValue();
+            }
           } else {
             alert("Không lưu được bài viết");
             me.resetValue();
           }
         });
     },
-    setImage1: function (file) {
-      this.ThumbnailVideo = file;
+    setImage1: function () {
+      if (this.edittingModel)
+        this.edittingModel.Thumbnail = null;
     },
     deleteImage() {
       this.ThumbnailVideo = null;
@@ -271,13 +384,38 @@ export default {
 
       eventBus.ShowLoading();
 
-      if (me.fileUpload && me.fileUpload.size > 0) {
+      if (
+        me.videoModel?.YoutubeLink != null &&
+        me.videoModel.YoutubeLink.length > 0
+      ) {
+        me.saveVideo(null);
+        return;
+      }
+
+      // không cập nhật video
+      if (me.IsEdit && me.fileUpload == null) {
+        if (me.ThumbnailVideo == null) {
+          me.saveVideo(null);
+        } else {
+          me.saveImage(
+            me.VideoInfo.metadata.connections.pictures.uri,
+            me.VideoInfo.upload.upload_link
+          );
+        }
+
+        return;
+      }
+
+      if (
+        (me.fileUpload && me.fileUpload.size > 0) ||
+        me.videoModel?.YoutubeLink?.length > 0
+      ) {
         const data = {
           upload: {
             approach: "tus",
-            size: me.fileUpload?.size,
+            size: me.fileUpload?.size ? me.fileUpload?.size : 100,
           },
-          name: me.videoModel?.Title,
+          name: me.cleanString(me.videoModel?.Title),
           embed: {
             title: {
               name: "show",
@@ -369,8 +507,7 @@ export default {
                         },
                       }
                     )
-                    .catch(() => {
-                    })
+                    .catch(() => {})
                     .then((response2) => {});
                 }
               });
@@ -454,12 +591,25 @@ export default {
         VideoLink: null,
         Thumbnail: null,
         Tags: null,
+        YoutubeLink: null,
       };
       this.videoframe = null;
       this.fileUpload = null;
       this.ThumbnailVideo = null;
       this.ThumbnailNews = null;
       eventBus.HidenLoading();
+
+      if (this.IsEdit){
+        this.emitBack();
+      }
+    },
+    changeVideo() {
+      if (this.IsEdit) {
+        this.ThumbnailVideo = null;
+        this.videoModel.Thumbnail = null;
+        this.edittingModel.Thumbnail = null;
+        this.videoModel.VideoLink = null;
+      }
     },
     showError() {
       alert("Cập nhật dữ liệu thất bại!!");
@@ -494,6 +644,12 @@ export default {
   },
   created: function () {
     const me = this;
+
+    if (me.IsEdit && me.edittingModel) {
+      me.videoModel = me.edittingModel;
+      me.VideoInfo = JSON.parse(me.edittingModel.VideoInfo);
+    }
+
     this.client = axios.create({
       withCredentials: false,
       headers: me.headersPost,
